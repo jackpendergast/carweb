@@ -20,6 +20,9 @@ stage('Post Image to Dockerhub')
     /*push Image to DockerHub Repository*/
     
     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub_credentials')
+    {
+        app.push('penjack/car_docker_repo')
+    }
 }
 
 stage('Deploy')
