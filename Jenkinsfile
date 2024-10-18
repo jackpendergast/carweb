@@ -4,7 +4,7 @@ node('ubuntu-AppServer-3120')
 def app
 stage('Cloning Github')
 {
-    /*cloning the girhub repository*/
+    /*cloning the GitHub repository*/
     checkout scm
 }
 
@@ -24,6 +24,24 @@ stage('Post Image to Dockerhub')
         app.push('latest')
     }
 }
+
+stage('Prepare Environment') {
+            steps {
+                script {
+                    // Check if any container is using port 80 and stop it
+                    def containerId = sh(
+                        script: "docker ps -q --filter 'publish=80'",
+                        returnStdout: true
+                    ).trim()
+                    
+                    if (containerId) {
+                        sh "docker stop ${containerId}"
+                        sh "docker rm ${containerId}"
+                    }
+                }
+            }
+        }
+
 
 stage('Deploy')
 {
