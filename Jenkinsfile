@@ -27,21 +27,19 @@ stage('Post Image to Dockerhub')
 
 stage('Prepare Environment') {
             steps {
-                script {
-                    // Check if any container is using port 80 and stop it
-                    def containerId = sh(
-                        script: "docker ps -q --filter 'publish=80'",
-                        returnStdout: true
-                    ).trim()
-                    
-                    if (containerId) {
-                        sh "docker stop ${containerId}"
-                        sh "docker rm ${containerId}"
-                    }
-                }
+                // Find and stop any Docker container using port 80
+                sh '''
+                CONTAINER_ID=$(docker ps -q --filter "publish=80")
+                if [ -n "$CONTAINER_ID" ]; then
+                    echo "Stopping container using port 80: $CONTAINER_ID"
+                    docker stop $CONTAINER_ID
+                    docker rm $CONTAINER_ID
+                else
+                    echo "No container using port 80."
+                fi
+                '''
             }
         }
-
 
 stage('Deploy')
 {
